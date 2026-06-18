@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Тренировки</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; background-color: #f0f9f0; }
+        .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h2 { color: #4caf50; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+        th, td { border: 1px solid #c8e6c9; padding: 10px; text-align: left; }
+        th { background-color: #4caf50; color: white; }
+        
+        .intensity-col {
+            text-align: center;
+            width: 60px;
+        }
+        
+        button, .btn, a.btn {
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 2px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 12px;
+            cursor: pointer;
+            border: none;
+        }
+        
+        .btn-add { background-color: #4caf50; color: white; }
+        .btn-add-disabled { background-color: #ccc; color: #666; cursor: not-allowed; }
+        .btn-add-multi { background-color: #ff9800; color: white; }
+        .btn-add-multi-disabled { background-color: #ccc; color: #666; cursor: not-allowed; }
+        .btn-edit { background-color: #2196f3; color: white; }
+        .btn-delete { background-color: #f44336; color: white; }
+        .btn-start { background-color: #4caf50; color: white; }
+        .btn-complete { background-color: #9c27b0; color: white; }
+        .btn-detail { background-color: #00bcd4; color: white; }
+        .btn-info { background-color: #f321a3; color: white; }
+        .btn-progress { background-color: #9c27b0; color: white; }
+        .btn-primary { 
+            background-color: #4caf50; 
+            color: white; 
+            padding: 10px 20px; 
+            margin-right: 10px; 
+            text-decoration: none; 
+            display: inline-block; 
+            border-radius: 5px;
+            border: none;
+        }
+        
+        .nav { margin-bottom: 20px; }
+        
+        .participant-input {
+            width: 60px;
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+        }
+        
+        .participant-input-disabled {
+            width: 60px;
+            padding: 5px;
+            margin-right: 5px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            text-align: center;
+            background-color: #f0f0f0;
+            color: #999;
+        }
+        
+        .add-participants-form {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background: white;
+            margin: 8% auto;
+            width: 500px;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .modal-header h3 {
+            margin: 0;
+        }
+        .modal-body {
+            padding: 20px;
+        }
+        .modal-footer {
+            padding: 15px;
+            text-align: center;
+            background: #f9f9f9;
+        }
+        .info-item {
+            padding: 10px;
+            margin: 8px 0;
+            background: #f5f5f5;
+            border-radius: 8px;
+            border-left: 4px solid #9c27b0;
+        }
+        .info-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 130px;
+        }
+        .close {
+            float: right;
+            font-size: 28px;
+            cursor: pointer;
+            color: white;
+        }
+        .close:hover { color: #ff9800; }
+        .modal-btn {
+            background: #9c27b0;
+            color: white;
+            padding: 10px 30px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .edit-field {
+            width: calc(100% - 20px);
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-top: 5px;
+        }
+        .recommendation-text {
+            background: #fff3e0;
+            padding: 12px;
+            border-radius: 8px;
+            color: #e65100;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 style="color: #2e7d32; margin-bottom: 5px;">Фитнес-клуб "Атлетик"</h1>
+        <div class="nav">
+            <a href="/add-group" class="btn-primary">Добавить групповую</a>
+            <a href="/add-personal" class="btn-primary">Добавить персональную</a>
+            <a href="/search-trainer" class="btn-primary" style="background:#ff9800;">Поиск тренера</a>
+            <a href="/search-client" class="btn-primary" style="background:#2196f3;">Поиск клиента</a>
+        </div>
+
+        <h2>Групповые тренировки</h2>
+        <table>
+            <thead>
+                <tr><th>Статус</th><th>Название</th><th>Инструктор</th><th>Длительность</th><th>Зал</th><th>Участники</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="training : ${groupTrainings}">
+                    <td><span th:text="${training.status == 'PLANNED' ? 'Запланирована' : (training.status == 'ACTIVE' ? 'Активна' : 'Завершена')}"></span></td>
+                    <td th:text="${training.title}"></td>
+                    <td th:text="${training.trainer != null ? training.trainer.name : 'Нет тренера'}"></td>
+                    <td th:text="${training.duration + ' мин'}"></td>
+                    <td th:text="${training.roomNumber}"></td>
+                    <td><span th:text="${training.currentParticipants + '/' + training.maxParticipants}"></span></td>
+                    <td style="white-space: nowrap;">
+                        <button class="btn btn-detail" th:data-title="${training.title}" th:data-trainer="${training.trainer != null ? training.trainer.name : ''}" th:data-room="${training.roomNumber}" th:data-current="${training.currentParticipants}" th:data-max="${training.maxParticipants}" th:data-status="${training.status}" onclick="showGroupDetailModal(this)">Детали</button>
+                        <button class="btn btn-info" th:data-trainer="${training.trainer != null ? training.trainer.name : ''}" th:data-room="${training.roomNumber}" th:data-info="${training.trainer != null ? training.trainer.specialization : ''}" onclick="showInfoModal(this)">Инфо</button>
+                        <button class="btn btn-edit" th:data-id="${training.id}" th:data-title="${training.title}" th:data-duration="${training.duration}" th:data-room="${training.roomNumber}" th:data-max="${training.maxParticipants}" th:data-trainer="${training.trainer != null ? training.trainer.name : ''}" onclick="showEditGroupModal(this)">Ред.</button>
+                        
+                        <a th:if="${training.status == 'PLANNED' && training.currentParticipants < training.maxParticipants}" th:href="@{/add-single-participant/{id}(id=${training.id})}" class="btn btn-add">+1</a>
+                        <span th:if="${training.status == 'PLANNED' && training.currentParticipants >= training.maxParticipants}" class="btn btn-add-disabled">+1</span>
+                        
+                        <form th:if="${training.status == 'PLANNED' && training.currentParticipants < training.maxParticipants}" th:action="@{/add-participants/{groupId}(groupId=${training.id})}" method="post" class="add-participants-form">
+                            <input type="number" name="participantCount" class="participant-input" min="1" th:max="${training.maxParticipants - training.currentParticipants}" value="1" required>
+                            <button type="submit" class="btn btn-add-multi">+</button>
+                        </form>
+                        <div th:if="${training.status == 'PLANNED' && training.currentParticipants >= training.maxParticipants}" class="add-participants-form">
+                            <input type="text" class="participant-input-disabled" value="0" disabled>
+                            <button class="btn btn-add-multi-disabled" disabled>+</button>
+                        </div>
+                        
+                        <a th:if="${training.status == 'PLANNED'}" th:href="@{/start-group/{id}(id=${training.id})}" class="btn btn-start">Старт</a>
+                        <a th:if="${training.status == 'ACTIVE'}" th:href="@{/complete-group/{id}(id=${training.id})}" class="btn btn-complete">Заверш.</a>
+                        <a th:href="@{/delete-group/{id}(id=${training.id})}" class="btn btn-delete" onclick="return confirm('Удалить тренировку?')">Уд.</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h2>Персональные тренировки</h2>
+        <table>
+            <thead>
+                <tr><th>Статус</th><th>Название</th><th>Клиент</th><th>Длительность</th><th>Оборудование</th><th class="intensity-col">Инт.</th><th>Действия</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="training : ${personalTrainings}">
+                    <td><span th:text="${training.status == 'PLANNED' ? 'Запланирована' : (training.status == 'ACTIVE' ? 'Активна' : 'Завершена')}"></span></td>
+                    <td th:text="${training.title}"></td>
+                    <td th:text="${training.client != null ? training.client.name : 'Нет клиента'}"></td>
+                    <td th:text="${training.duration + ' мин'}"></td>
+                    <td th:text="${training.equipment}"></td>
+                    <td class="intensity-col" th:text="${training.intensityLevel + '/10'}"></td>
+                    <td style="white-space: nowrap;">
+                        <button class="btn btn-detail" th:data-name="${training.client != null ? training.client.name : ''}" th:data-title="${training.title}" th:data-equipment="${training.equipment}" th:data-intensity="${training.intensityLevel}" th:data-duration="${training.duration}" onclick="showDescriptionModal(this)">Описание</button>
+                        <button class="btn btn-progress" th:data-name="${training.client != null ? training.client.name : ''}" th:data-title="${training.title}" th:data-intensity="${training.intensityLevel}" th:data-duration="${training.duration}" th:data-equipment="${training.equipment}" onclick="showProgressModal(this)">Прогресс</button>
+                        <button class="btn btn-edit" th:data-id="${training.id}" th:data-title="${training.title}" th:data-duration="${training.duration}" th:data-client="${training.client != null ? training.client.name : ''}" th:data-equipment="${training.equipment}" th:data-intensity="${training.intensityLevel}" onclick="showEditPersonalModal(this)">Ред.</button>
+                        <a th:if="${training.status == 'PLANNED'}" th:href="@{/start-personal/{id}(id=${training.id})}" class="btn btn-start">Старт</a>
+                        <a th:if="${training.status == 'ACTIVE'}" th:href="@{/complete-personal/{id}(id=${training.id})}" class="btn btn-complete">Заверш.</a>
+                        <a th:href="@{/delete-personal/{id}(id=${training.id})}" class="btn btn-delete" onclick="return confirm('Удалить тренировку?')">Уд.</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Модальные окна -->
+    <div id="groupDetailModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('groupDetailModal')">&times;</span><h3>Детали тренировки</h3></div>
+            <div class="modal-body">
+                <div class="info-item"><span class="info-label">Название:</span> <span id="detailTitle"></span></div>
+                <div class="info-item"><span class="info-label">Статус:</span> <span id="detailStatus"></span></div>
+                <div class="info-item"><span class="info-label">Инструктор:</span> <span id="detailTrainer"></span></div>
+                <div class="info-item"><span class="info-label">Номер зала:</span> <span id="detailRoom"></span></div>
+                <div class="info-item"><span class="info-label">Участники:</span> <span id="detailParticipants"></span></div>
+            </div>
+            <div class="modal-footer"><button class="modal-btn" onclick="closeModal('groupDetailModal')">OK</button></div>
+        </div>
+    </div>
+
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('infoModal')">&times;</span><h3>Информация о тренере</h3></div>
+            <div class="modal-body">
+                <div class="info-item"><span class="info-label">Инструктор:</span> <span id="infoTrainerName"></span></div>
+                <div class="info-item"><span class="info-label">Номер зала:</span> <span id="infoRoomNumber"></span></div>
+                <div class="info-item" id="infoTrainerInfoBlock" style="display:none;"><span class="info-label">Специализация:</span> <span id="infoTrainerInfo"></span></div>
+            </div>
+            <div class="modal-footer"><button class="modal-btn" onclick="closeModal('infoModal')">OK</button></div>
+        </div>
+    </div>
+
+    <div id="descriptionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('descriptionModal')">&times;</span><h3>Описание тренировки</h3></div>
+            <div class="modal-body"><div class="description-item" id="descriptionText"></div></div>
+            <div class="modal-footer"><button class="modal-btn" onclick="closeModal('descriptionModal')">OK</button></div>
+        </div>
+    </div>
+
+    <div id="progressModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('progressModal')">&times;</span><h3>Прогресс клиента</h3></div>
+            <div class="modal-body">
+                <div class="info-item"><span class="info-label">Клиент:</span> <span id="progressClientName"></span></div>
+                <div class="info-item"><span class="info-label">Тренировка:</span> <span id="progressTitle"></span></div>
+                <div class="info-item"><span class="info-label">Интенсивность:</span> <span id="progressIntensity"></span></div>
+                <div class="info-item"><span class="info-label">Длительность:</span> <span id="progressDuration"></span></div>
+                <div class="info-item"><span class="info-label">Оборудование:</span> <span id="progressEquipment"></span></div>
+                <div class="recommendation-text" id="progressRecommendation"></div>
+            </div>
+            <div class="modal-footer"><button class="modal-btn" onclick="closeModal('progressModal')">OK</button></div>
+        </div>
+    </div>
+
+    <div id="editGroupModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('editGroupModal')">&times;</span><h3>Редактирование групповой тренировки</h3></div>
+            <div class="modal-body">
+                <form action="/edit-group" method="post">
+                    <input type="hidden" name="id" id="editGroupId">
+                    <div class="info-item"><label>Название:</label> <input type="text" name="title" id="editGroupTitle" class="edit-field"></div>
+                    <div class="info-item"><label>Длительность (мин):</label> <input type="number" name="duration" id="editGroupDuration" class="edit-field"></div>
+                    <div class="info-item"><label>Имя тренера:</label> <input type="text" name="trainerName" id="editGroupTrainer" class="edit-field"></div>
+                    <div class="info-item"><label>Номер зала:</label> <input type="number" name="roomNumber" id="editGroupRoom" class="edit-field"></div>
+                    <div class="info-item"><label>Макс. участников:</label> <input type="number" name="maxParticipants" id="editGroupMax" class="edit-field"></div>
+                    <button type="submit" style="background:#4caf50;color:white;padding:10px 20px;border:none;border-radius:5px;margin-top:10px;">Сохранить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="editPersonalModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><span class="close" onclick="closeModal('editPersonalModal')">&times;</span><h3>Редактирование персональной тренировки</h3></div>
+            <div class="modal-body">
+                <form action="/edit-personal" method="post">
+                    <input type="hidden" name="id" id="editPersonalId">
+                    <div class="info-item"><label>Название:</label> <input type="text" name="title" id="editPersonalTitle" class="edit-field"></div>
+                    <div class="info-item"><label>Клиент:</label> <input type="text" name="clientName" id="editPersonalClient" class="edit-field"></div>
+                    <div class="info-item"><label>Длительность (мин):</label> <input type="number" name="duration" id="editPersonalDuration" class="edit-field"></div>
+                    <div class="info-item"><label>Оборудование:</label> <input type="text" name="equipment" id="editPersonalEquipment" class="edit-field"></div>
+                    <div class="info-item"><label>Интенсивность (1-10):</label> <input type="number" name="intensityLevel" id="editPersonalIntensity" min="1" max="10" class="edit-field"></div>
+                    <button type="submit" style="background:#4caf50;color:white;padding:10px 20px;border:none;border-radius:5px;margin-top:10px;">Сохранить</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function getRecommendation(intensity) {
+            if (intensity >= 8) return "Высокая интенсивность! Не забывайте про разминку 15 минут.";
+            if (intensity >= 5) return "Средняя интенсивность. Хороший темп!";
+            return "Низкая интенсивность. Увеличивайте нагрузку постепенно.";
+        }
+        
+        function showGroupDetailModal(btn) {
+            document.getElementById('detailTitle').innerHTML = btn.getAttribute('data-title') || '—';
+            let status = btn.getAttribute('data-status');
+            let statusText = status == 'PLANNED' ? 'Запланирована' : (status == 'ACTIVE' ? 'Активна' : 'Завершена');
+            document.getElementById('detailStatus').innerHTML = statusText;
+            document.getElementById('detailTrainer').innerHTML = btn.getAttribute('data-trainer') || '—';
+            document.getElementById('detailRoom').innerHTML = btn.getAttribute('data-room') || '—';
+            document.getElementById('detailParticipants').innerHTML = (btn.getAttribute('data-current') || '0') + ' из ' + (btn.getAttribute('data-max') || '0');
+            document.getElementById('groupDetailModal').style.display = 'block';
+        }
+        
+        function showInfoModal(btn) {
+            document.getElementById('infoTrainerName').innerHTML = btn.getAttribute('data-trainer') || '—';
+            document.getElementById('infoRoomNumber').innerHTML = btn.getAttribute('data-room') || '—';
+            let info = btn.getAttribute('data-info');
+            if (info && info != 'null') {
+                document.getElementById('infoTrainerInfo').innerHTML = info;
+                document.getElementById('infoTrainerInfoBlock').style.display = 'block';
+            } else {
+                document.getElementById('infoTrainerInfoBlock').style.display = 'none';
+            }
+            document.getElementById('infoModal').style.display = 'block';
+        }
+        
+        function showDescriptionModal(btn) {
+            let html = '<p><strong>Клиент:</strong> ' + (btn.getAttribute('data-name') || '—') + '</p>';
+            html += '<p><strong>Тренировка:</strong> ' + (btn.getAttribute('data-title') || '—') + '</p>';
+            html += '<p><strong>Оборудование:</strong> ' + (btn.getAttribute('data-equipment') || '—') + '</p>';
+            html += '<p><strong>Интенсивность:</strong> ' + (btn.getAttribute('data-intensity') || '0') + '/10</p>';
+            html += '<p><strong>Длительность:</strong> ' + (btn.getAttribute('data-duration') || '0') + ' мин</p>';
+            document.getElementById('descriptionText').innerHTML = html;
+            document.getElementById('descriptionModal').style.display = 'block';
+        }
+        
+        function showProgressModal(btn) {
+            document.getElementById('progressClientName').innerHTML = btn.getAttribute('data-name') || '—';
+            document.getElementById('progressTitle').innerHTML = btn.getAttribute('data-title') || '—';
+            let intensity = btn.getAttribute('data-intensity') || '5';
+            document.getElementById('progressIntensity').innerHTML = intensity + '/10';
+            document.getElementById('progressDuration').innerHTML = (btn.getAttribute('data-duration') || '0') + ' мин';
+            document.getElementById('progressEquipment').innerHTML = btn.getAttribute('data-equipment') || '—';
+            document.getElementById('progressRecommendation').innerHTML = getRecommendation(parseInt(intensity));
+            document.getElementById('progressModal').style.display = 'block';
+        }
+        
+        function showEditGroupModal(btn) {
+            document.getElementById('editGroupId').value = btn.getAttribute('data-id');
+            document.getElementById('editGroupTitle').value = btn.getAttribute('data-title') || '';
+            document.getElementById('editGroupDuration').value = btn.getAttribute('data-duration') || '';
+            document.getElementById('editGroupTrainer').value = btn.getAttribute('data-trainer') || '';
+            document.getElementById('editGroupRoom').value = btn.getAttribute('data-room') || '';
+            document.getElementById('editGroupMax').value = btn.getAttribute('data-max') || '';
+            document.getElementById('editGroupModal').style.display = 'block';
+        }
+        
+        function showEditPersonalModal(btn) {
+            document.getElementById('editPersonalId').value = btn.getAttribute('data-id');
+            document.getElementById('editPersonalTitle').value = btn.getAttribute('data-title') || '';
+            document.getElementById('editPersonalClient').value = btn.getAttribute('data-client') || '';
+            document.getElementById('editPersonalDuration').value = btn.getAttribute('data-duration') || '';
+            document.getElementById('editPersonalEquipment').value = btn.getAttribute('data-equipment') || '';
+            document.getElementById('editPersonalIntensity').value = btn.getAttribute('data-intensity') || '5';
+            document.getElementById('editPersonalModal').style.display = 'block';
+        }
+        
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+        
+        window.onclick = function(e) {
+            if (e.target.classList && e.target.classList.contains('modal')) {
+                e.target.style.display = 'none';
+            }
+        }
+    </script>
+</body>
+</html>

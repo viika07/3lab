@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск клиента</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f9f0; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #4caf50; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2e7d32; }
+        select {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #c8e6c9;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+            background-color: white;
+            cursor: pointer;
+        }
+        select:focus {
+            outline: none;
+            border-color: #4caf50;
+            box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
+        }
+        select option {
+            padding: 10px;
+        }
+        select option:hover {
+            background-color: #e8f5e9;
+        }
+        button {
+            background-color: #4caf50;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        .back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #555;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            text-align: center;
+            transition: background-color 0.3s;
+        }
+        .back:hover {
+            background: #444;
+        }
+        .error {
+            color: #f44336;
+            text-align: center;
+            margin-top: 10px;
+            padding: 10px;
+            background: #ffebee;
+            border-radius: 5px;
+        }
+        .info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .info p {
+            margin: 5px 0;
+        }
+        .no-clients {
+            text-align: center;
+            padding: 10px;
+            color: #666;
+            background: #fff3e0;
+            border-radius: 5px;
+            margin-bottom: 15px;
+        }
+        .select-wrapper {
+            position: relative;
+        }
+        .select-wrapper::after {
+            content: "▼";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #4caf50;
+            pointer-events: none;
+            font-size: 12px;
+        }
+        select {
+            appearance: none;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            padding-right: 35px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Поиск клиента</h1>
+        
+        <div class="info">
+            <p>Выберите клиента из списка для просмотра его персональных тренировок</p>
+            <p style="font-size: 14px; color: #666;">Всего клиентов: <span th:text="${allClients.size()}"></span></p>
+        </div>
+        
+        <div th:if="${param.error == 'notfound'}" class="error">
+            Клиент не найден
+        </div>
+        
+        <div th:if="${allClients.empty}" class="no-clients">
+            В системе нет зарегистрированных клиентов
+        </div>
+        
+        <form action="/client-trainings" method="get">
+            <div class="form-group">
+                <label for="clientId">Выберите клиента:</label>
+                <div class="select-wrapper">
+                    <select id="clientId" name="clientId" required th:if="${not allClients.empty}">
+                        <option value="">-- Выберите клиента --</option>
+                        <option th:each="client : ${allClients}" 
+                                th:value="${client.id}" 
+                                th:text="${client.name + ' (ID: ' + client.id + ')'}"
+                                th:selected="${client.id == clientId}">
+                        </option>
+                    </select>
+                    <select id="clientId" name="clientId" disabled th:if="${allClients.empty}">
+                        <option value="">Нет клиентов</option>
+                    </select>
+                </div>
+            </div>
+            
+            <button type="submit" th:disabled="${allClients.empty}">
+                Найти тренировки
+            </button>
+        </form>
+        
+        <div style="margin-top: 15px; text-align: center;">
+            <a href="/trainings" class="back">← Назад к тренировкам</a>
+        </div>
+    </div>
+</body>
+</html>

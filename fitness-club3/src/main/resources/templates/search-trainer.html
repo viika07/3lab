@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Поиск тренера</title>
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f9f0; }
+        .container { max-width: 500px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #4caf50; text-align: center; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2e7d32; }
+        input { width: 100%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 5px; box-sizing: border-box; font-size: 16px; }
+        button { background-color: #4caf50; color: white; padding: 12px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; font-size: 16px; }
+        button:hover { background-color: #45a049; }
+        .back { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #555; color: white; text-decoration: none; border-radius: 5px; text-align: center; }
+        .error { color: #f44336; text-align: center; margin-top: 10px; }
+        .info { background: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Поиск тренера</h1>
+        
+        <div class="info">
+            <p>Введите ID тренера для просмотра его групповых тренировок</p>
+        </div>
+        
+        <form action="/trainer-trainings" method="get">
+            <div class="form-group">
+                <label>ID тренера:</label>
+                <input type="number" name="trainerId" min="1" required placeholder="Введите ID...">
+            </div>
+            <button type="submit">Найти тренировки</button>
+        </form>
+        
+        <div th:if="${param.error}" class="error">
+            Тренер с таким ID не найден
+        </div>
+        
+        <a href="/trainings" class="back">Назад к тренировкам</a>
+    </div>
+</body>
+</html>

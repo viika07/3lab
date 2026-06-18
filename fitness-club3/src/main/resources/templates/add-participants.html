@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Добавить участников</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; background: #f0f9f0; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        h1 { color: #4caf50; text-align: center; }
+        .info { background: #e8f5e9; padding: 15px; border-radius: 5px; margin-bottom: 20px; border-left: 4px solid #4caf50; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; font-weight: bold; color: #2e7d32; }
+        input { width: 100%; padding: 10px; border: 2px solid #c8e6c9; border-radius: 5px; box-sizing: border-box; }
+        button { background-color: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; width: 100%; margin-bottom: 10px; }
+        button:hover { background-color: #45a049; }
+        .back-btn { background-color: #757575; }
+        .back-btn:hover { background-color: #616161; }
+        .warning { color: #ff9800; font-size: 14px; margin-top: 5px; }
+        .available { color: #4caf50; font-weight: bold; font-size: 24px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Добавить участников</h1>
+        
+        <div class="info">
+            <p><strong>Тренировка:</strong> <span th:text="${group.title}"></span></p>
+            <p><strong>Тренер:</strong> <span th:text="${group.trainer.name}"></span></p>
+            <p><strong>Зал:</strong> <span th:text="${group.roomNumber}"></span></p>
+            <p><strong>Текущее кол-во:</strong> <span th:text="${group.currentParticipants}"></span></p>
+            <p><strong>Максимум:</strong> <span th:text="${group.maxParticipants}"></span></p>
+            <p><strong>Свободных мест:</strong> <span class="available" th:text="${availableSlots}"></span></p>
+        </div>
+        
+        <form th:action="@{/add-participants/{groupId}(groupId=${group.id})}" method="post">
+            <div class="form-group">
+                <label for="participantCount">Количество участников:</label>
+                <input type="number" id="participantCount" name="participantCount" 
+                       min="1" th:max="${availableSlots}" required>
+                <div class="warning">Можно добавить от 1 до <span th:text="${availableSlots}"></span> участников</div>
+            </div>
+            
+            <button type="submit">Подтвердить добавление</button>
+        </form>
+        
+        <form action="/trainings">
+            <button type="submit" class="back-btn">Назад к тренировкам</button>
+        </form>
+    </div>
+</body>
+</html>

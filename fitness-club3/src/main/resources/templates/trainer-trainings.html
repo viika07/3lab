@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Тренировки тренера</title>
+    <style>
+        body { font-family: Arial; margin: 20px; background: #f0f9f0; }
+        .container { max-width: 1000px; margin: 0 auto; background: white; padding: 20px; border-radius: 10px; }
+        h1 { color: #4caf50; }
+        .trainer-info { background: #e8f5e9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border-left: 4px solid #4caf50; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #c8e6c9; padding: 10px; text-align: left; }
+        th { background-color: #4caf50; color: white; }
+        .back { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #555; color: white; text-decoration: none; border-radius: 5px; }
+        .no-trainings { text-align: center; padding: 40px; color: #666; }
+        .status-planned { color: #ff9800; font-weight: bold; }
+        .status-active { color: #4caf50; font-weight: bold; }
+        .status-completed { color: #9e9e9e; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тренировки тренера</h1>
+        
+        <div class="trainer-info">
+            <p><strong>Тренер:</strong> <span th:text="${trainer.name}"></span></p>
+            <p><strong>Специализация:</strong> <span th:text="${trainer.specialization}"></span></p>
+            <p><strong>Опыт:</strong> <span th:text="${trainer.experienceYears}"></span> лет</p>
+            <p><strong>ID:</strong> <span th:text="${trainer.id}"></span></p>
+        </div>
+        
+        <h2>Групповые тренировки</h2>
+        
+        <div th:if="${trainings.empty}" class="no-trainings">
+            У этого тренера пока нет групповых тренировок
+        </div>
+        
+        <table th:if="${not trainings.empty}">
+            <thead>
+                <tr><th>Статус</th><th>Название</th><th>Длительность</th><th>Зал</th><th>Участники</th></tr>
+            </thead>
+            <tbody>
+                <tr th:each="t : ${trainings}">
+                    <td>
+                        <span th:class="${t.status == 'PLANNED'} ? 'status-planned' : (${t.status == 'ACTIVE'} ? 'status-active' : 'status-completed')"
+                              th:text="${t.status == 'PLANNED'} ? 'Запланирована' : (${t.status == 'ACTIVE'} ? 'Активна' : 'Завершена')">
+                        </span>
+                    </td>
+                    <td th:text="${t.title}"></td>
+                    <td th:text="${t.duration + ' мин'}"></td>
+                    <td th:text="${t.roomNumber}"></td>
+                    <td th:text="${t.currentParticipants + '/' + t.maxParticipants}"></td>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+        <a href="/search-trainer" class="back">Новый поиск</a>
+        <a href="/trainings" class="back" style="margin-left:10px;">На главную</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Редактировать групповую</title>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; margin: 40px; background: #f0f9f0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; padding: 30px; border-radius: 10px; }
+        h1 { color: #4caf50; }
+        input { padding: 8px; margin: 5px; width: 100%; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #4CAF50; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        .form-group { margin-bottom: 15px; }
+        .back { display: inline-block; margin-top: 20px; padding: 10px 20px; background: #555; color: white; text-decoration: none; border-radius: 5px; }
+        label { font-weight: bold; color: #2e7d32; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Редактировать групповую тренировку</h1>
+        <form th:action="@{/edit-group}" th:object="${groupTraining}" method="post">
+            <input type="hidden" th:field="*{id}"/>
+            <div class="form-group">
+                <label>Название:</label>
+                <input type="text" th:field="*{title}" required/>
+            </div>
+            <div class="form-group">
+                <label>Длительность (мин):</label>
+                <input type="number" th:field="*{duration}" required/>
+            </div>
+            <div class="form-group">
+                <label>Инструктор:</label>
+                <input type="text" th:field="*{trainerName}" required/>
+            </div>
+            <div class="form-group">
+                <label>Номер зала:</label>
+                <input type="number" th:field="*{roomNumber}" required/>
+            </div>
+            <div class="form-group">
+                <label>Макс. участников:</label>
+                <input type="number" th:field="*{maxParticipants}" required/>
+            </div>
+            <button type="submit">Сохранить</button>
+        </form>
+        <a href="/trainings" class="back">Назад</a>
+    </div>
+</body>
+</html>
